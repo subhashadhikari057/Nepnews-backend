@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;
@@ -25,14 +26,17 @@ public class NewsService {
 
     // ✅ Updated: Fetch All News (with Search Support)
     public List<News> getAllNews(String search, int page, int limit) {
-        Pageable pageable = PageRequest.of(page - 1, limit); // Page starts from 0 in Spring
+        Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         if (search != null && !search.isEmpty()) {
-            return newsRepository.findByTitleContainingIgnoreCaseOrKeywordsContainingIgnoreCase(search, search, pageable).getContent();
+            return newsRepository
+                    .findByTitleContainingIgnoreCaseOrKeywordsContainingIgnoreCase(search, search, pageable)
+                    .getContent();
         }
 
         return newsRepository.findAll(pageable).getContent();
     }
+
 
     // ✅ Existing Methods Remain Unchanged
     public News createNews(News news) {
@@ -42,6 +46,7 @@ public class NewsService {
         if (news.getImageUrl() == null || news.getImageUrl().isEmpty()) {
             news.setImageUrl("https://i.imgur.com/default-placeholder.jpg"); // Default image
         }
+        news.setCreatedAt(new Date()); // Set current timestamp
 
         return newsRepository.save(news);
     }
