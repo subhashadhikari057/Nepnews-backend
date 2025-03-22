@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -13,15 +15,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.disable()) // ✅ Disable CORS if it's causing issues
-                .csrf(csrf -> csrf.disable()) // ✅ Disable CSRF for API testing
+                .cors(cors -> cors.disable())
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/news/**").permitAll()  // ✅ Allow all requests to News APIs
-                        .anyRequest().authenticated()  // Secure other endpoints
+                        .requestMatchers("/api/auth/**").permitAll()  // ✅ Add this line
+                        .requestMatchers("/api/news/**").permitAll()
+                        .requestMatchers("/**").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .formLogin(form -> form.disable()) // ✅ Disable form login (for API-only)
-                .logout(logout -> logout.disable()); // ✅ Disable logout (for API-only)
+                .formLogin(form -> form.disable())
+                .logout(logout -> logout.disable());
 
         return http.build();
     }
+
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+
 }
