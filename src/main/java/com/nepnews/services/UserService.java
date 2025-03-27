@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -23,4 +24,13 @@ public class UserService {
         user.setRole(Role.valueOf(role.toUpperCase())); // Must match enum (READER, AUTHOR, EDITOR, ADMIN)
         return userRepository.save(user);
     }
+    public boolean deleteUser(String id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            userRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
 }

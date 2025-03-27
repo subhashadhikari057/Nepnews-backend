@@ -143,8 +143,9 @@ public class NewsService {
         return newsRepository.findByCategoryIgnoreCase(category);
     }
     public List<News> getNewsByStatus(String status) {
-        return newsRepository.findByStatus(status.toLowerCase()); // To avoid case issues
+        return newsRepository.findByStatusRegex(status); // ✅ case-insensitive
     }
+
     public List<News> getNewsByUserAndStatus(String userId, String status) {
         if (status != null && !status.isEmpty()) {
             return newsRepository.findByCreatedByAndStatus(userId, status);

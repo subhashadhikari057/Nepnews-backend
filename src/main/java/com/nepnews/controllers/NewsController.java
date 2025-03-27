@@ -1,6 +1,8 @@
 package com.nepnews.controllers;
 
 import com.nepnews.models.News;
+import com.nepnews.models.User;
+import com.nepnews.repositories.UserRepository;
 import com.nepnews.services.NewsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,9 @@ import java.util.Optional;
 public class NewsController {
     @Autowired
     private NewsService newsService;
+    @Autowired
+    private UserRepository userRepository;
+
 
     // ✅ Updated: Get All News (Now supports search)
     @GetMapping
@@ -47,10 +52,15 @@ public class NewsController {
     public News createNews(@RequestBody News news) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userId = auth.getName(); // ✅ userId from JWT
-        news.setCreatedBy(userId);      // ✅ set it here (don't trust frontend)
+        news.setCreatedBy(userId);      // ✅ Set userId (from token)
+
+        // ✅ Get author name using userId
+        Optional<User> userOpt = userRepository.findById(userId);
+        userOpt.ifPresent(user -> news.setAuthorName(user.getName())); // 💡 Set authorName
 
         return newsService.createNews(news);
     }
+
 
 
     // ✅ Update News

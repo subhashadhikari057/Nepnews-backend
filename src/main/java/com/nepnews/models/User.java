@@ -22,6 +22,7 @@ public class User {
 
     private String password;
 
-
     private Role role; // 👈 New: Use the Role enum (READER, AUTHOR, etc.)
+    
+
 }

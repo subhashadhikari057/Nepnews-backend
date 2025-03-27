@@ -34,5 +34,6 @@ public class News {
 
     private String status;
     private String createdBy;  // 👈 Add this field if not already present
+    private String authorName;
 
 }

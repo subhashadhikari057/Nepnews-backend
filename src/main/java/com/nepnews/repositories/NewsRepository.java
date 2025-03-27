@@ -4,6 +4,7 @@ import com.nepnews.models.News;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -32,6 +33,8 @@ public interface NewsRepository extends MongoRepository<News, String> {
     List<News> findByCreatedByAndStatus(String createdBy, String status);
 
     List<News> findByStatus(String status, Pageable pageable);
+    @Query("{ 'status': { $regex: ?0, $options: 'i' } }")
+    List<News> findByStatusRegex(String status);
 
 
 }
