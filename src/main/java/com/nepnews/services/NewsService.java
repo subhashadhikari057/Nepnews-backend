@@ -143,7 +143,7 @@ public class NewsService {
         return newsRepository.findByCategoryIgnoreCase(category);
     }
     public List<News> getNewsByStatus(String status) {
-        return newsRepository.findByStatusRegex(status); // ✅ case-insensitive
+        return newsRepository.findByStatus(status.toUpperCase()); // ✅ FIXED
     }
 
     public List<News> getNewsByUserAndStatus(String userId, String status) {

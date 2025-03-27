@@ -35,6 +35,8 @@ public interface NewsRepository extends MongoRepository<News, String> {
     List<News> findByStatus(String status, Pageable pageable);
     @Query("{ 'status': { $regex: ?0, $options: 'i' } }")
     List<News> findByStatusRegex(String status);
+    long countByStatusIgnoreCase(String status);
+
 
 
 }
