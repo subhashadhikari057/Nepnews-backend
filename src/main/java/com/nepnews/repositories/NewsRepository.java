@@ -31,4 +31,7 @@ public interface NewsRepository extends MongoRepository<News, String> {
     List<News> findByCreatedBy(String createdBy);
     List<News> findByCreatedByAndStatus(String createdBy, String status);
 
+    List<News> findByStatus(String status, Pageable pageable);
+
+
 }

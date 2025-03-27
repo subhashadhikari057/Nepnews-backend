@@ -33,14 +33,28 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ fix
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Auth
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // News (secured first)
+                        .requestMatchers(HttpMethod.GET, "/api/news/status/**").hasAnyRole("EDITOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/news/user/**").hasAnyRole("AUTHOR", "EDITOR", "ADMIN")
+
+                        // General GET (public news)
                         .requestMatchers(HttpMethod.GET, "/api/news/**").permitAll()
+
+                        // Create & Update
                         .requestMatchers(HttpMethod.POST, "/api/news").hasAnyRole("AUTHOR", "EDITOR", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/news/slug/**").hasAnyRole("AUTHOR", "EDITOR", "ADMIN") // ✅ FIXED
+                        .requestMatchers(HttpMethod.PUT, "/api/news/slug/**").hasAnyRole("AUTHOR", "EDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/news/**").hasAnyRole("EDITOR", "ADMIN")
+
+                        // Delete
+                        .requestMatchers(HttpMethod.DELETE, "/api/news/slug/**").hasAnyRole("AUTHOR", "EDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/news/**").hasAnyRole("AUTHOR", "EDITOR", "ADMIN")
+
                         .anyRequest().authenticated()
                 )
+
 
                 .formLogin(login -> login.disable())
                 .logout(logout -> logout.disable())

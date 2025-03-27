@@ -5,20 +5,31 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
+import java.util.Base64;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
 
-    // ✅ Use a secure generated key
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    @Value("${jwt.secret}")
+    private String secret; // Loaded from application.properties
+
+    private SecretKey key;
 
     private final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 hours
 
-    // ✅ Generate token with subject, claims, expiration
+    @PostConstruct
+    public void init() {
+        // Encode the secret and generate a secure key from it
+        byte[] secretBytes = Base64.getEncoder().encode(secret.getBytes());
+        this.key = Keys.hmacShaKeyFor(secretBytes);
+    }
+
     public String generateToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getEmail())
@@ -26,11 +37,10 @@ public class JwtUtil {
                 .claim("id", user.getId())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(key)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // ✅ Extract all claims using the same key
     public Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)

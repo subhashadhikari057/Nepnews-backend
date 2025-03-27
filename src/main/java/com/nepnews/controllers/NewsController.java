@@ -96,17 +96,22 @@ public class NewsController {
         return newsService.getNewsByUserAndStatus(userId, status);
     }
 
-    @PreAuthorize("hasAnyRole('AUTHOR','EDITOR','ADMIN')")
     @DeleteMapping("/slug/{slug}")
-    public String deleteNewsBySlug(@PathVariable String slug) {
+    @PreAuthorize("hasAnyRole('AUTHOR','EDITOR','ADMIN')")
+    public ResponseEntity<String> deleteNewsBySlug(@PathVariable String slug) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String userId = auth.getName(); // this is userId from token
-        String role = auth.getAuthorities().iterator().next().getAuthority(); // ROLE_AUTHOR
+        String userId = auth.getName(); // from JWT
+        String role = auth.getAuthorities().iterator().next().getAuthority(); // ROLE_EDITOR
 
-        return newsService.deleteNewsBySlug(slug, userId, role)
-                ? "News deleted successfully"
-                : "News not found or not authorized";
+        boolean deleted = newsService.deleteNewsBySlug(slug, userId, role);
+
+        if (deleted) {
+            return ResponseEntity.ok("News deleted successfully");
+        } else {
+            return ResponseEntity.status(403).body("Not authorized or news not found");
+        }
     }
+
     @PreAuthorize("hasAnyRole('AUTHOR','EDITOR','ADMIN')")
     @PutMapping("/slug/{slug}")
     public ResponseEntity<?> updateNewsBySlug(@PathVariable String slug, @RequestBody News updatedNews) {
@@ -120,6 +125,14 @@ public class NewsController {
         } else {
             return ResponseEntity.status(403).body("Unauthorized or not found");
         }
+    }
+
+    @GetMapping("/published")
+    public List<News> getPublishedNews(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "6") int limit
+    ) {
+        return newsService.getPublishedNews(page, limit);
     }
 
 }

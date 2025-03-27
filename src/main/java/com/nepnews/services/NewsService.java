@@ -113,13 +113,6 @@ public class NewsService {
         if (newsOpt.isEmpty()) return false;
 
         News news = newsOpt.get();
-        // 🔍 Debug logs
-        System.out.println("🔍 Requested Deletion by:");
-        System.out.println("    → userId: " + userId);
-        System.out.println("    → role: " + role);
-        System.out.println("🗂  News Info:");
-        System.out.println("    → createdBy: " + news.getCreatedBy());
-        System.out.println("    → status: " + news.getStatus());
 
 
         // 🛡 Author can only delete their own *draft*
@@ -160,22 +153,32 @@ public class NewsService {
         }
     }
     public boolean deleteNewsBySlug(String slug, String userId, String role) {
-        Optional<News> newsOpt = newsRepository.findBySlug(slug);
+        System.out.println("🛠️ Deleting news with slug: " + slug);
+        System.out.println("👤 User ID: " + userId);
+        System.out.println("🔐 Role: " + role);
 
-        if (newsOpt.isEmpty()) return false;
+        Optional<News> newsOpt = newsRepository.findBySlug(slug);
+        if (newsOpt.isEmpty()) {
+            System.out.println("⚠️ News not found.");
+            return false;
+        }
 
         News news = newsOpt.get();
 
-        // Only allow authors to delete their own drafts
-        if ("ROLE_AUTHOR".equals(role)) {
+        // Block authors from deleting other people's drafts
+        if (role.equalsIgnoreCase("ROLE_AUTHOR") || role.equalsIgnoreCase("AUTHOR")) {
             if (!news.getCreatedBy().equals(userId) || !"draft".equalsIgnoreCase(news.getStatus())) {
+                System.out.println("⛔ Author is not allowed to delete this draft.");
                 return false;
             }
         }
 
+        // Allow EDITOR and ADMIN unconditionally
         newsRepository.delete(news);
+        System.out.println("✅ News deleted successfully.");
         return true;
     }
+
     public boolean updateNewsBySlug(String slug, News updatedNews, String userId, String role) {
         Optional<News> newsOpt = newsRepository.findBySlug(slug);
 
@@ -225,5 +228,10 @@ public class NewsService {
         newsRepository.save(existingNews);
         return true;
     }
+    public List<News> getPublishedNews(int page, int limit) {
+        Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return newsRepository.findByStatus("PUBLISHED", pageable);
+    }
+
 
 }
