@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+
 @Document(collection = "users")
 @Data
 @NoArgsConstructor
@@ -20,6 +21,7 @@ public class User {
     private String email;
 
     private String password;
+
 
     private Role role; // 👈 New: Use the Role enum (READER, AUTHOR, etc.)
 }

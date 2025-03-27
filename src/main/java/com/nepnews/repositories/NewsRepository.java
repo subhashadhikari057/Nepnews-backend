@@ -26,4 +26,9 @@ public interface NewsRepository extends MongoRepository<News, String> {
 
     // ✅ NEW: Search news by title OR keywords (pagination support)
     Page<News> findByTitleContainingIgnoreCaseOrKeywordsContainingIgnoreCase(String title, String keyword, Pageable pageable);
+
+    List<News> findByStatus(String status);
+    List<News> findByCreatedBy(String createdBy);
+    List<News> findByCreatedByAndStatus(String createdBy, String status);
+
 }

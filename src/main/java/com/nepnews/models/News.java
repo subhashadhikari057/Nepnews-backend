@@ -33,4 +33,6 @@ public class News {
     private Date updatedAt;  // Auto-set when modified
 
     private String status;
+    private String createdBy;  // 👈 Add this field if not already present
+
 }
