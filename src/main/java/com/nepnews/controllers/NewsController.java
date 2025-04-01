@@ -140,9 +140,10 @@ public class NewsController {
     @GetMapping("/published")
     public List<News> getPublishedNews(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "6") int limit
+            @RequestParam(defaultValue = "6") int limit,
+            @RequestParam(required = false) String search
     ) {
-        return newsService.getPublishedNews(page, limit);
+        return newsService.getPublishedNews(search, page, limit);
     }
 
 }

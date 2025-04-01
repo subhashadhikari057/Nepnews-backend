@@ -38,5 +38,14 @@ public interface NewsRepository extends MongoRepository<News, String> {
     long countByStatusIgnoreCase(String status);
 
 
+    @Query(value = "{ $and: [ " +
+            "{ status: { $regex: '^PUBLISHED$', $options: 'i' } }, " +
+            "{ $or: [ " +
+            "  { title: { $regex: ?0, $options: 'i' } }, " +
+            "  { keywords: { $regex: ?0, $options: 'i' } } " +
+            "] } " +
+            "] }")
+    Page<News> searchPublishedNewsByTitleOrKeywords(String search, Pageable pageable);
+
 
 }

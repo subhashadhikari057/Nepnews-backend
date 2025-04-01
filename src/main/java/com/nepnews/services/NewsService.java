@@ -229,10 +229,19 @@ public class NewsService {
         newsRepository.save(existingNews);
         return true;
     }
-    public List<News> getPublishedNews(int page, int limit) {
+    public List<News> getPublishedNews(String search, int page, int limit) {
         Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        if (search != null && !search.isEmpty()) {
+            return newsRepository
+                    .searchPublishedNewsByTitleOrKeywords(search, pageable)
+                    .getContent();
+        }
+
         return newsRepository.findByStatus("PUBLISHED", pageable);
     }
+
+
 
 
 }
