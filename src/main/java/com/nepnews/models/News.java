@@ -25,15 +25,12 @@ public class News {
     private String category;
     private List<String> keywords;
     private String imageUrl;
-
     @CreatedDate
     private Date createdAt;  // Auto-set when first created
-
     @LastModifiedDate
     private Date updatedAt;  // Auto-set when modified
-
     private String status;
-    private String createdBy;  // 👈 Add this field if not already present
+    private String createdBy;
     private String authorName;
 
 }

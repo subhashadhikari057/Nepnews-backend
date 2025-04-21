@@ -48,4 +48,5 @@ public interface NewsRepository extends MongoRepository<News, String> {
     Page<News> searchPublishedNewsByTitleOrKeywords(String search, Pageable pageable);
 
 
+
 }

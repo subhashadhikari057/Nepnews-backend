@@ -2,8 +2,10 @@ package com.nepnews.controllers;
 
 import com.nepnews.models.News;
 import com.nepnews.models.User;
+import com.nepnews.repositories.NewsRepository;
 import com.nepnews.repositories.UserRepository;
 import com.nepnews.services.NewsService;
+import com.nepnews.services.RssService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,6 +23,12 @@ public class NewsController {
     private NewsService newsService;
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RssService rssService;
+
+    @Autowired
+    private NewsRepository newsRepository;
 
 
     // ✅ Updated: Get All News (Now supports search)
@@ -146,6 +154,24 @@ public class NewsController {
         return newsService.getPublishedNews(search, page, limit);
     }
 
+
+
+    @GetMapping("/rss/fetch")
+    public ResponseEntity<?> fetchRssNews(@RequestParam(defaultValue = "10") int limit) {
+        String feedUrl = "https://www.thehindu.com/news/national/feeder/default.rss";
+
+        List<News> fetchedNews = rssService.fetchNewsFromRss(feedUrl, limit);
+
+        int savedCount = 0;
+        for (News news : fetchedNews) {
+            if (!newsRepository.findBySlug(news.getSlug()).isPresent()) {
+                newsRepository.save(news);
+                savedCount++;
+            }
+        }
+
+        return ResponseEntity.ok("✅ Fetched and saved " + savedCount + " new articles (limit: " + limit + ")");
+    }
 }
 
 

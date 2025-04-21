@@ -36,6 +36,9 @@ public class SecurityConfig {
                         // Auth
                         .requestMatchers("/api/auth/**").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/rss/**").permitAll()
+
+
                         // News (secured first)
                         .requestMatchers(HttpMethod.GET, "/api/news/status/**").hasAnyRole("EDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/news/user/**").hasAnyRole("AUTHOR", "EDITOR", "ADMIN")
