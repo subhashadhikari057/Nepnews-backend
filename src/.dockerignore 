@@ -1,0 +1,13 @@
+# Ignore the target directory (you will copy only the final jar manually)
+target/
+# Ignore Git and VSCode system files
+.git/
+.gitignore
+*.md
+*.log
+*.iml
+.vscode/
+.idea/
+# Ignore OS system files
+.DS_Store
+Thumbs.db
