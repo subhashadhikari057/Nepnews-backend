@@ -55,6 +55,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/news/slug/**").hasAnyRole("AUTHOR", "EDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/news/**").hasAnyRole("AUTHOR", "EDITOR", "ADMIN")
 
+                        .requestMatchers(HttpMethod.POST, "/api/bookmarks/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/bookmarks/**").authenticated()
+
+
                         .anyRequest().authenticated()
                 )
 
@@ -70,15 +74,27 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000","https://nepnews-frontend.vercel.app"));
+        config.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "https://nepnews-frontend.vercel.app"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        config.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "Access-Control-Request-Method",
+                "Access-Control-Request-Headers"
+        ));
+        config.setExposedHeaders(List.of("Authorization")); // optional, exposes token after login
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
