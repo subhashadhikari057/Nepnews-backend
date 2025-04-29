@@ -13,7 +13,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")  // Allow all /api/ routes
-                        .allowedOrigins("http://localhost:3000","https://nepnews-backend-production.up.railway.app")  // Allow frontend URL
+                        .allowedOrigins("http://localhost:3000","https://nepnews-frontend.vercel.app")  // Allow frontend URL
 
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
