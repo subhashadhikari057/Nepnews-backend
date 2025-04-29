@@ -15,7 +15,7 @@ public class CorsConfig {
                 registry.addMapping("/api/**")  // Allow all /api/ routes
                         .allowedOrigins("http://localhost:3000","https://nepnews-frontend.vercel.app")  // Allow frontend URL
 
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // allowed method
                         .allowedHeaders("*")
                         .allowCredentials(true);
             }
