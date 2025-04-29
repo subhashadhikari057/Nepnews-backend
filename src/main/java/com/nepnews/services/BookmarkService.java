@@ -1,5 +1,4 @@
 package com.nepnews.services;
-
 import com.nepnews.models.Bookmark;
 import com.nepnews.models.News;
 import com.nepnews.dto.BookmarkNewsDTO;
@@ -7,12 +6,11 @@ import com.nepnews.repositories.BookmarkRepository;
 import com.nepnews.repositories.NewsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
+//BOOKMARK
 @Service
 public class BookmarkService {
 
@@ -35,7 +33,6 @@ public class BookmarkService {
                     .savedAt(new Date())
                     .build();
             Bookmark saved = bookmarkRepository.save(bookmark);
-
             if (saved.getId() == null) {
                 System.err.println("❌ Failed to persist bookmark. ID is null!");
             } else {
