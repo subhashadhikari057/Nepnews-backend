@@ -58,7 +58,7 @@ public class RssService {
                     }
                 }
 
-                news.setImageUrl(imageUrl != null ? imageUrl : "https://i.imgur.com/default-placeholder.jpg");
+                news.setImageUrl(imageUrl != null ? imageUrl : "https://res.cloudinary.com/dra0nvexo/image/upload/default_fmzsfv.png\n");
 
                 newsList.add(news);
                 count++;
