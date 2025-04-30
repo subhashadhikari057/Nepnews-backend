@@ -155,7 +155,7 @@ public class NewsController {
     }
 
 
-
+//for fetching from other
     @GetMapping("/rss/fetch")
     public ResponseEntity<?> fetchRssNews(@RequestParam(defaultValue = "") int limit) {
         String feedUrl = "https://www.thehindu.com/news/national/feeder/default.rss";
