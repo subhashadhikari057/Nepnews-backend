@@ -58,6 +58,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/bookmarks/**").authenticated()
 
                         .requestMatchers(HttpMethod.POST, "/api/users/subscribe").permitAll() // ✅ ADD THIS LINE
+                        .requestMatchers(HttpMethod.POST, "/api/khalti/initiate").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/khalti/verify").permitAll()
+
+
 
                         .anyRequest().authenticated()
                 )
