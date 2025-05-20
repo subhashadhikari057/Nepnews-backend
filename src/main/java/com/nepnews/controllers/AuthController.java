@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Optional;
 
 @CrossOrigin(origins = {
@@ -48,7 +47,6 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         System.out.println("Login endpoint hit with email: " + request.getEmail());
-
         Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
 
         if (optionalUser.isEmpty()) {
@@ -56,14 +54,20 @@ public class AuthController {
         }
 
         User user = optionalUser.get();
+        System.out.println("✅ Subscribed: " + user.isSubscribed());
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
 
         String token = jwtUtil.generateToken(user);
-        return ResponseEntity.ok(new AuthResponse(token, user.getRole().name(), user.getName(), user.getId()));
-    }
+        return ResponseEntity.ok(new AuthResponse(
+                token,
+                user.getRole().name(),
+                user.getName(),
+                user.getId(),
+                user.isSubscribed()  // ✅ Add this
+        ));    }
 
 
 }

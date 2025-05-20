@@ -57,6 +57,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/bookmarks/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/bookmarks/**").authenticated()
 
+                        .requestMatchers(HttpMethod.POST, "/api/users/subscribe").permitAll() // ✅ ADD THIS LINE
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login.disable())

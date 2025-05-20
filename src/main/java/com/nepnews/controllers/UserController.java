@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -45,5 +46,18 @@ public class UserController {
             return ResponseEntity.status(404).body("User not found");
         }
     }
+
+    @PostMapping("/subscribe")
+    public ResponseEntity<?> subscribeUser(@RequestBody Map<String, String> body) {
+        String userId = body.get("userId");
+
+        User updatedUser = userService.subscribeUser(userId);
+
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "User subscribed successfully"
+        ));
+    }
+
 
 }

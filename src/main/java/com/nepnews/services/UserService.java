@@ -33,4 +33,13 @@ public class UserService {
         return false;
     }
 
+    public User subscribeUser(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setSubscribed(true); // ✅ Mark as subscribed
+        return userRepository.save(user); // 💾 Save updated user
+    }
+
+
 }
