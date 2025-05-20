@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api/khalti")
@@ -20,18 +21,20 @@ public class KhaltiController {
 
     @Value("${KHALTI_SECRET_KEY}")
     private String secretKey;
+
     @Value("${KHALTI_BASE_URL}")
     private String khaltiBaseUrl;
 
     @Autowired
     private UserService userService;
 
+    // ✅ TEMPORARY IN-MEMORY STORAGE: Map pidx → userId
+    private final Map<String, String> pidxUserMap = new ConcurrentHashMap<>();
 
+    // ✅ INITIATE PAYMENT
     @PostMapping("/initiate")
     public ResponseEntity<?> initiatePayment(@RequestBody KhaltiPaymentRequestDto dto) {
         String khaltiApi = khaltiBaseUrl + "/epayment/initiate/";
-        String khaltiLookupUrl = khaltiBaseUrl + "/epayment/lookup/";
-
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Key " + secretKey);
@@ -44,6 +47,8 @@ public class KhaltiController {
         requestBody.put("purchase_order_id", dto.getPurchaseOrderId());
         requestBody.put("purchase_order_name", dto.getPurchaseOrderName());
 
+        // 💡 We skip merchant_extra — we'll handle mapping internally
+
         Map<String, Object> customerInfo = new HashMap<>();
         customerInfo.put("name", dto.getName());
         customerInfo.put("email", dto.getEmail());
@@ -55,14 +60,25 @@ public class KhaltiController {
 
         try {
             ResponseEntity<Map> response = restTemplate.postForEntity(khaltiApi, request, Map.class);
-            return ResponseEntity.ok(response.getBody()); // includes payment_url
+            Map<String, Object> responseBody = response.getBody();
+
+            if (responseBody != null && responseBody.get("pidx") != null) {
+                String pidx = responseBody.get("pidx").toString();
+                String userId = dto.getPurchaseOrderId();
+                pidxUserMap.put(pidx, userId); // ✅ Save mapping
+                System.out.println("💾 Saved pidx mapping: " + pidx + " → " + userId);
+            }
+
+            return ResponseEntity.ok(responseBody);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error initiating Khalti payment: " + e.getMessage());
         }
     }
+
+    // ✅ VERIFY PAYMENT AND UPDATE DB
     @PostMapping("/verify")
     public ResponseEntity<?> verifyPayment(@RequestBody KhaltiVerificationDto dto) {
-        String khaltiLookupUrl = "https://dev.khalti.com/api/v2/epayment/lookup/";
+        String khaltiLookupUrl = khaltiBaseUrl + "/epayment/lookup/";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Key " + secretKey);
@@ -78,14 +94,16 @@ public class KhaltiController {
             ResponseEntity<Map> response = restTemplate.postForEntity(khaltiLookupUrl, request, Map.class);
             Map<String, Object> responseBody = response.getBody();
 
-            if (responseBody != null && "Completed".equals(responseBody.get("status"))) {
-                // Optional: Get userId from metadata if passed via purchaseOrderId
-                String userId = (String) responseBody.get("purchase_order_id");
+            System.out.println("👉 Full Khalti Response: " + responseBody);
 
-                // ✅ Subscribe the user
-                if (userId != null) {
-                    userService.subscribeUser(userId); // uses your existing method
-                }
+            String status = responseBody != null ? (String) responseBody.get("status") : null;
+            String userId = pidxUserMap.get(dto.getPidx());
+
+            System.out.println("🔍 Retrieved userId from pidx map: " + userId);
+
+            if ("Completed".equals(status) && userId != null) {
+                userService.subscribeUser(userId);
+                System.out.println("✅ User subscribed in DB for ID: " + userId);
 
                 return ResponseEntity.ok(Map.of(
                         "success", true,
@@ -94,9 +112,10 @@ public class KhaltiController {
             } else {
                 return ResponseEntity.status(400).body(Map.of(
                         "success", false,
-                        "message", "Payment not completed"
+                        "message", "Payment not completed or userId missing"
                 ));
             }
+
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of(
                     "success", false,

@@ -46,7 +46,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        System.out.println("Login endpoint hit with email: " + request.getEmail());
+
         Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
 
         if (optionalUser.isEmpty()) {
@@ -54,7 +54,7 @@ public class AuthController {
         }
 
         User user = optionalUser.get();
-        System.out.println("✅ Subscribed: " + user.isSubscribed());
+
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             return ResponseEntity.status(401).body("Invalid credentials");
